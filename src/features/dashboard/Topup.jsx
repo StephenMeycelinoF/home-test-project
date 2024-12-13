@@ -12,7 +12,7 @@ function Topup() {
   const [amount, setAmount] = useState("");
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [status, setStatus] = useState("success");
+  const [status, setStatus] = useState(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [topUpBalance, { isLoading }] = useTopUpBalanceMutation();
 
@@ -39,7 +39,7 @@ function Topup() {
 
       if (balance) {
         setStatus("success");
-        setStatusMessage(` berhasil!`);
+        setStatusMessage(` Top up sebesar ${balance} berhasil!`);
       } else {
         setStatus("error");
         setStatusMessage("Saldo tidak ditemukan.");
@@ -110,6 +110,7 @@ function Topup() {
         </div>
       </div>
 
+      {/* Modal Konfirmasi */}
       <StatusModal
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
@@ -118,9 +119,10 @@ function Topup() {
         message={` ${Number(amount).toLocaleString("id-ID")} ?`}
         amount={amount}
         onConfirm={handleSubmit}
-        onRetry={handleSubmit}
+        onCancel={() => setIsConfirmModalOpen(false)}
       />
 
+      {/* Modal Hasil (Success/Error) */}
       <StatusModal
         isOpen={isStatusModalOpen}
         onClose={() => setIsStatusModalOpen(false)}
@@ -128,6 +130,8 @@ function Topup() {
         message={statusMessage}
         amount={amount}
         onConfirm={() => setIsStatusModalOpen(false)}
+        onContinue={handleSubmit}
+        onCancel={() => setIsStatusModalOpen(false)}
       />
     </section>
   );

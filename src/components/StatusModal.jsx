@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
 
 function StatusModal({
   isOpen,
@@ -17,8 +18,19 @@ function StatusModal({
   amount,
   onConfirm,
   title,
-  onRetry,
+  onContinue,
+  onCancel,
 }) {
+  const navigate = useNavigate();
+
+  const handleButtonClick = () => {
+    if (status === "success" || status === "error") {
+      navigate("/welcome"); // navigate to welcome page when top-up is successful or failed
+    } else {
+      onContinue(); // continue with the top-up if status is confirm
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[300px]">
@@ -29,7 +41,7 @@ function StatusModal({
                 ? "bg-green-500"
                 : status === "error"
                 ? "bg-red-500"
-                : "bg-red-500"
+                : "bg-yellow-500"
             } rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4`}
           >
             {status === "success" ? (
@@ -40,11 +52,11 @@ function StatusModal({
               <Wallet size={32} className="text-white" />
             )}
           </div>
-          <DialogTitle className="text-center">
+          <DialogTitle>
             {title ||
-              (status === "success" ? "Berhasil!" : "gagal")}
+              (status === "success" ? "Top Up Berhasil" : "Top Up Gagal")}
           </DialogTitle>
-          <DialogDescription className="text-center text-3xl font-bold text-gray-800">
+          <DialogDescription>
             {message ||
               (status &&
                 `Top up sebesar Rp ${Number(amount).toLocaleString("id-ID")} ${
@@ -53,27 +65,18 @@ function StatusModal({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <div className="w-full flex flex-col items-center gap-2">
-            {status !== "success" && (
-              <Button
-                variant="ghost"
-                className="w-full text-red-500"
-                onClick={onRetry}
-              >
-                Ya, Lanjutkan Top Up
-              </Button>
-            )}
+          {/* Tombol dinamis berdasarkan status */}
+          <Button variant="default" onClick={handleButtonClick}>
+            {status === "success" || status === "error"
+              ? "Kembali ke Beranda"
+              : "Ya, Lanjutkan Top Up"}
+          </Button>
 
-            {status && (
-              <Button
-                variant="ghost"
-                className="w-full text-gray-500"
-                onClick={onConfirm}
-              >
-                {status === "success" ? "Kembali ke Beranda" : "Batalkan"}
-              </Button>
-            )}
-          </div>
+          {status === null && (
+            <Button variant="outline" onClick={onCancel}>
+              Batalkan
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
